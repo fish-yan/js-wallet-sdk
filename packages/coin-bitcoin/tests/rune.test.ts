@@ -135,7 +135,7 @@ describe('rune test', () => {
             }
         }
         let signParams: SignTxParams = {
-            privateKey: "KxEAmC6ZLvhF6xh3qtQFS12QU9Znmw3DwaXceTXKDM7kM7WCJKey",
+            privateKey: "***",
             data: runeTxParams
         };
         let fee = await wallet.estimateFee(signParams)
