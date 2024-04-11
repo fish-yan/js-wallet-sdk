@@ -2,13 +2,15 @@ import {cloneObject, SignTxParams} from "@okxweb3/coin-base";
 import {BtcWallet} from "./BtcWallet";
 import * as bitcoin from "../index"
 import {networks, signBtc, utxoTx} from "../index"
-import {buildRuneData} from "../rune";
+import {buildRuneData} from "../runestone";
 import {base} from "@okxweb3/crypto-lib";
+import { RuneId } from "../rune_id";
 
 export class RuneWallet extends BtcWallet {
 
     convert2RuneTx(paramData: any): utxoTx {
         const clonedParamData = cloneObject(paramData)
+
         // Detects that the type of amount in data is converted to bigint
         for(let input of clonedParamData.inputs) {
             let dataArray = input.data;
@@ -37,6 +39,7 @@ export class RuneWallet extends BtcWallet {
         const runeInputMap = new Map<string, bigint>();
         for (const input of inputs) {
             let dataArray = input.data;
+            
             if (dataArray != null && dataArray instanceof Array) {
                 for (const data of dataArray) {
                     let runeId: string = data["id"];
@@ -77,6 +80,7 @@ export class RuneWallet extends BtcWallet {
         // where isChange ? if input > output yes, rune change put first output
         let isRuneChange = false;
         for (const id of runeInputMap.keys()) {
+
             let inputAmount = runeInputMap.get(id);
             let sendAmount = runeSendMap.get(id);
             if ((inputAmount != null && sendAmount != null && inputAmount > sendAmount) || (inputAmount != null && sendAmount == null)) {
@@ -95,18 +99,20 @@ export class RuneWallet extends BtcWallet {
             }
             updateOutputs.push(runeChange)
             outputIndex++;
+            console.log("aaaaa", updateOutputs);
+            
         }
         const typedEdicts: bitcoin.Edict[] = []
         for (const output of outputs) {
             let data = output.data;
             if (data != null) {
-                let runeId: string = data["id"];
+                let runeId = RuneId.fromString(data["id"]);
                 let runeAmount: bigint = BigInt(data["amount"]);
                 if (runeId == null || runeAmount == null) {
                     continue
                 }
                 const typedEdict: bitcoin.Edict = {
-                    id: parseInt('0x' + runeId),
+                    id: runeId,
                     amount: BigInt(runeAmount),
                     output: outputIndex,
                 }
@@ -126,6 +132,8 @@ export class RuneWallet extends BtcWallet {
             runeData: {
                 edicts: typedEdicts,
                 etching: clonedParamData.runeData!.etching,
+                mint: clonedParamData.runeData!.mint,
+                pointer: clonedParamData.runeData!.pointer,
                 burn: clonedParamData.runeData!.burn
             },
         }
@@ -156,7 +164,7 @@ export class RuneWallet extends BtcWallet {
         if (networks.bitcoin === network) {
             isMainnet = true;
         }
-        const opReturnScript = buildRuneData(isMainnet, runeData.edicts);
+        const opReturnScript = buildRuneData(isMainnet, runeData);
         const opReturnOutput = {address: '', amount: 0, omniScript: base.toHex(opReturnScript)};
         return opReturnOutput;
     }

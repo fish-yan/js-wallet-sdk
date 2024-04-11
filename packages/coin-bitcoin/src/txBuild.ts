@@ -385,7 +385,7 @@ export function signBch(utxoTx: utxoTx, privateKey: string, network?: bitcoin.Ne
 }
 
 
-function calculateTxSize(inputs: [], outputs: [], changeAddress: string, privateKey: string, network: bitcoin.Network, dustSize: Number, hardware?: boolean, memo?: string, pos?: number) {
+function calculateTxSize(inputs: [], outputs: [], changeAddress: string, privateKey: string, network: bitcoin.Network, dustSize: number, hardware?: boolean, memo?: string, pos?: number) {
 
     let preTxBuild = new TxBuild(2, network, false, hardware);
     let inputAmount = 0;

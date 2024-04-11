@@ -1,83 +1,104 @@
-import * as bscript from './bitcoinjs-lib/script';
-import {OPS} from './bitcoinjs-lib/ops';
-import {Edict} from "./type";
+export const DIFFCHANGE_INTERVAL = BigInt(2016);
+export const CLAIM_BIT = BigInt(1) << BigInt(48);
+export const MAX_DIVISIBILITY = 38;
+export const MAX_LIMIT = BigInt(1) << BigInt(64);
+export const RESERVED = BigInt('6402364363415443603228541259936211926');
+export const MAX_SPACERS = 0b00000111_11111111_11111111_11111111;
 
-function encode(n: bigint): Uint8Array {
-    let payload: number[] = [];
-    encodeToVec(n, payload);
-    return new Uint8Array(payload);
+export class Rune {
+  public value: bigint;
+  private STEPS = [
+    BigInt('0'), //
+    BigInt('26'), //
+    BigInt('702'), //
+    BigInt('18278'), //
+    BigInt('475254'), //
+    BigInt('12356630'), //
+    BigInt('321272406'), //
+    BigInt('8353082582'), //
+    BigInt('217180147158'), //
+    BigInt('5646683826134'), //
+    BigInt('146813779479510'), //
+    BigInt('3817158266467286'), //
+    BigInt('99246114928149462'), //
+    BigInt('2580398988131886038'), //
+    BigInt('67090373691429037014'), //
+    BigInt('1744349715977154962390'), //
+    BigInt('45353092615406029022166'), //
+    BigInt('1179180408000556754576342'), //
+    BigInt('30658690608014475618984918'), //
+    BigInt('797125955808376366093607894'), //
+    BigInt('20725274851017785518433805270'), //
+    BigInt('538857146126462423479278937046'), //
+    BigInt('14010285799288023010461252363222'), //
+    BigInt('364267430781488598271992561443798'), //
+    BigInt('9470953200318703555071806597538774'), //
+    BigInt('246244783208286292431866971536008150'), //
+    BigInt('6402364363415443603228541259936211926'), //
+    BigInt('166461473448801533683942072758341510102'), //
+  ];
+
+  get id(): bigint {
+    return this.value;
+  }
+
+  constructor(value: bigint) {
+    this.value = value;
+  }
+
+  static minimumAtHeight(height: bigint): Rune {
+    const _length = BigInt(13).valueOf() - height / (DIFFCHANGE_INTERVAL * BigInt(2)).valueOf();
+    const length = Math.max(Number(_length), 1);
+
+    let rune = BigInt(0);
+    for (let i = 0; i < length; i++) {
+      if (i > 0) {
+        rune += BigInt(1);
+      }
+      rune *= BigInt(26);
+    }
+
+    return new Rune(rune);
+  }
+
+  public toString(): string {
+    let n = this.value;
+    if (n === BigInt('340282366920938463463374607431768211455')) {
+      // u128::max_value()
+      return 'BCGDENLQRQWDSLRUGSNLBTMFIJAV';
+    }
+
+    n += BigInt(1);
+    let symbol = '';
+    while (n > BigInt(0)) {
+      const charIndex = Number((n - BigInt(1)) % BigInt(26));
+      symbol += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[charIndex];
+      n = (n - BigInt(1)) / BigInt(26);
+    }
+
+    return symbol.split('').reverse().join('');
+  }
+
+  static fromString(s: string): Rune {
+    let x = BigInt(0);
+    for (let i = 0; i < s.length; i++) {
+      const c = s[i];
+      if (i > 0) {
+        x += BigInt(1);
+      }
+      x *= BigInt(26);
+      if (c >= 'A' && c <= 'Z') {
+        x += BigInt(c.charCodeAt(0) - 'A'.charCodeAt(0));
+      } else {
+        throw new Error(`Invalid character in rune name: ${c}`);
+      }
+    }
+    return new Rune(x);
+  }
 }
 
-function encodeToVec(n: bigint, payload: number[]): void {
-    let i = 18;
-    const out = new Array(19).fill(0);
-
-    out[i] = Number(n & BigInt(0x7F));
-
-    while (n > BigInt(0x7F)) {
-        n = n / BigInt(128) - BigInt(1);
-        i--;
-        out[i] = Number(n & BigInt(0xFF)) | 0x80;
-    }
-
-    payload.push(...out.slice(i));
-}
-
-function decode(buffer: Uint8Array): [bigint, number] {
-    let n = BigInt(0);
-    let i = 0;
-
-    while (true) {
-        const b = BigInt(buffer[i]);
-
-        if (b < BigInt(128)) {
-            return [n + b, i + 1];
-        }
-
-        n += b - BigInt(127);
-        n = n * BigInt(128);
-        i++;
-
-        if (i >= buffer.length) {
-            throw new Error("Varint decoding error: buffer overflow");
-        }
-    }
-}
-
-export {encode as toVarInt, encodeToVec, decode as fromVarInt};
-
-const TAG_BODY = BigInt(0)
-
-export function buildRuneData(isMainnet: boolean, edicts: Edict[]): Buffer {
-    let payload: number[] = []
-    for(let edict of edicts) {
-        if(typeof edict.amount === "string") {
-            edict.amount = BigInt(edict.amount);
-        }
-    }
-
-    if (edicts.length > 0) {
-        encodeToVec(TAG_BODY, payload)
-
-        edicts.sort((a, b) => a.id - b.id)
-
-        let id = 0
-        for (const edict of edicts) {
-            encodeToVec(BigInt(edict.id - id), payload)
-            encodeToVec(BigInt(edict.amount), payload)
-            encodeToVec(BigInt(edict.output), payload)
-            id = edict.id
-        }
-    }
-
-    // return payload
-    let prefix
-    if (isMainnet) {
-        prefix = 'R'
-    } else {
-        prefix = 'RUNE_TEST'
-    }
-    const opReturnScript = bscript.compile([OPS.OP_RETURN, Buffer.from(prefix), Buffer.from(payload)])
-
-    return opReturnScript
-}
+// 使用示例
+//   const rune = Rune.minimumAtHeight(BigInt(5));
+//   console.log(rune.toString());
+//   const runeFromString = Rune.fromString("BCGDENLQRQWDSLRUGSNLBTMFIJAV");
+//   console.log(runeFromString);

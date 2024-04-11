@@ -1,3 +1,6 @@
+import { Rune } from "./rune"
+import { RuneId } from "./rune_id"
+
 type utxoInput = {
     txId: string
     vOut: number
@@ -65,12 +68,30 @@ type utxoTx = {
 // rune
 type RuneData = {
     edicts: Edict[]
-    etching?: any,
+    etching?: Etching
+    mint?: RuneId
+    pointer?: number
     burn?: boolean
 }
 
+type Etching = {
+    divisibility?: number,
+    premine?: number,
+    rune?: string,
+    spacers?: number,
+    symbol?: string,
+    terms?: Terms,
+}
+
+type Terms = {
+    amount?: number; // 单次铸造量，最后一次mint如果超过总供应量，截断。
+    cap?: number;  // 总供应量，
+    height?: [number, number]; // 铸造生效高度区间
+    offset?: [number, number]; // 铸造生效高度相对当前刻录高度的偏移量。
+}
+
 type Edict = {
-    id: number
+    id: RuneId
     amount: bigint | string
     output: number
 }
@@ -129,5 +150,5 @@ type signPsbtOptions = {
 }
 
 export {
-    utxoInput, utxoOutput, omniOutput, utxoTx, ListingData, BuyingData, RuneData, Edict, toSignInput, signPsbtOptions
+    utxoInput, utxoOutput, omniOutput, utxoTx, ListingData, BuyingData, RuneData, Edict, Etching, toSignInput, signPsbtOptions
 };
