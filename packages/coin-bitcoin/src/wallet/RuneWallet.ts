@@ -98,9 +98,7 @@ export class RuneWallet extends BtcWallet {
                 amount: 546
             }
             updateOutputs.push(runeChange)
-            outputIndex++;
-            console.log("aaaaa", updateOutputs);
-            
+            outputIndex++;            
         }
         const typedEdicts: bitcoin.Edict[] = []
         for (const output of outputs) {
@@ -122,7 +120,7 @@ export class RuneWallet extends BtcWallet {
             updateOutputs.push(output)
             outputIndex++;
         }
-
+        const mint = RuneId.fromString(clonedParamData.runeData!.mint)
         return {
             inputs: clonedParamData.inputs,
             // @ts-ignore
@@ -132,7 +130,7 @@ export class RuneWallet extends BtcWallet {
             runeData: {
                 edicts: typedEdicts,
                 etching: clonedParamData.runeData!.etching,
-                mint: clonedParamData.runeData!.mint,
+                mint: mint,
                 pointer: clonedParamData.runeData!.pointer,
                 burn: clonedParamData.runeData!.burn
             },

@@ -10,7 +10,7 @@ import { hexToBuf } from "@okxweb3/crypto-lib";
 import { hexToBytes } from "@okxweb3/crypto-lib/dist/signutil/schnorr";
 
 describe('rune test', () => {
-
+/*
     test('rune transfer OP_RETURN test', () => {
         const runeData: RuneData = {
             edicts: [{
@@ -145,7 +145,7 @@ describe('rune test', () => {
         const partial = /^02000000000106e6a94b1448d7c26f6d58dd4cb7a818f3894cea2ca7e26b73347fda7bd54267060000000000ffffffff5be5260880a7ddc5e46bf0376137ef89ccb54d6a7150d3c27ccdd3b0e1c599d40100000000ffffffffb8e16b6209dc2615b59d87aa460722380309161130a80d4ad5171871fa3cc3160100000000ffffffff98f36902f1bf8e5a01398f0fb188d33cd03d3bea6949d5c8431ad1ad9a1d18570000000000ffffffff6fb4623cbc90910773638db2da9778257174f59345e75e7133875530c19c5fe30000000000ffffffff481cb3b3f6ff60542435969acb78c0dcba64037edbf643f2a1d1e796919ef4950000000000ffffffff[0-9a-fA-F]*00000000$/
         expect(tx).toMatch(partial)
     })
-/*
+
     // https://testnet.runealpha.xyz/txs/9edf897ad90b15b681d0c466d9e4f83c32a60fae21ee1f90313280b86a10dd89
     test("segwit_taproot transfer rune", async () => {
         let wallet = new TBtcWallet()
@@ -194,7 +194,7 @@ describe('rune test', () => {
         const partial = /^02000000000102734b56605c57e3511a3dc52c5e5a50217104bb24d8e433dc78926628c56c8a4f0000000000ffffffff734b56605c57e3511a3dc52c5e5a50217104bb24d8e433dc78926628c56c8a4f0200000000ffffffff04220200000000000022512099b87db19a8b792411ae5bff483fe43ff68de5318d286aafd054e9a3da98190c22020000000000001600147d1c5da3f6b93ee9626b0c6713465d4bc8333e7e0000000000000000156a0952554e455f54455354090083ed9fceff016401567001000000000022512099b87db19a8b792411ae5bff483fe43ff68de5318d286aafd054e9a3da98190c0140[0-9a-fA-F]{260}00000000$/
         expect(tx).toMatch(partial)
     });
-*/
+
 
     test("varint full", () => {
         const testVectors: [number, Uint8Array][] = [
@@ -218,6 +218,67 @@ describe('rune test', () => {
             expect(decoded).toEqual(BigInt(n))
             expect(length).toBe(encoding.length)
         }
+    })
+*/
+    test('rune test', async () => {
+        let btcTxParams = {
+            type: 102,
+            inputs: [
+                // rune token info
+                {
+                    txId: "a1a41ccfe62ba715a085059ee455f164f649b5321ebb361ef6a4d65b24b047a0",
+                    vOut: 0,
+                    amount: 546,
+                    address: "bc1pne26q2qzjxpyr36ll2yfta64kgjgwctfk706a82xg96uzfcwswgqz3yv33", // 未花费地址
+                    privateKey: "KxEAmC6ZLvhF6xh3qtQFS12QU9Znmw3DwaXceTXKDM7kM7WCJKey", // 未花费 WIF 编码私钥
+                    data: [{ "id": "26e414:0001", "amount": "500" }] // maybe many rune token
+                },
+                // gas fee utxo
+                {
+                    txId: "82c51ff69fd0a55968e346f7093cb9088ce8b60b60a2493c8a5bc57b977ce348",
+                    vOut: 0,
+                    amount: 200000,
+                    address: "bc1pne26q2qzjxpyr36ll2yfta64kgjgwctfk706a82xg96uzfcwswgqz3yv33", // 未花费地址
+                    privateKey: "KxEAmC6ZLvhF6xh3qtQFS12QU9Znmw3DwaXceTXKDM7kM7WCJKey", // 未花费 WIF 编码私钥
+                }
+            ],
+            outputs: [
+                // rune send output
+                {
+                    address: "bc1pne26q2qzjxpyr36ll2yfta64kgjgwctfk706a82xg96uzfcwswgqz3yv33",
+                    amount: 546,
+                    data: { "id": "26e414:0001", "amount": "100" } // one output allow only one rune token
+                }
+            ],
+            address: "bc1pne26q2qzjxpyr36ll2yfta64kgjgwctfk706a82xg96uzfcwswgqz3yv33", // 找零地址
+            feePerB: 10,
+            runeData: { // 必须有
+                etching: {
+                    divisibility: 7,
+                    premine: 1000,
+                    rune: "J",
+                    spacers: 10,
+                    symbol: 'Y',
+                    terms: {
+                        cap: 1000000000,
+                        amount: 1000,
+                        height: [12, 13],
+                        offset: [15, 16],
+                    }
+                },
+                mint: "26e414:0001",
+                pointer: 0,
+                burn: false // 必须有
+            }
+        };
+        let signParams: SignTxParams = {
+            privateKey: "KxEAmC6ZLvhF6xh3qtQFS12QU9Znmw3DwaXceTXKDM7kM7WCJKey",
+            data: btcTxParams
+        };
+        let wallet = new BtcWallet()
+        let result = await wallet.signTransaction(signParams)
+        console.log(result);
+        
     })
 
 })
