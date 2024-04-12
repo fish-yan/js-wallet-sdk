@@ -260,6 +260,8 @@ export function signBtc(utxoTx: utxoTx, privateKey: string, network?: bitcoin.Ne
     const changeAddress = utxoTx.address;
     const feePerB = utxoTx.feePerB || 10;
     const dustSize = utxoTx.dustSize || 546
+    console.log(network);
+    
     network = network || bitcoin.networks.bitcoin;
     if (utxoTx.memo) {
         let buf = base.isHexString(utxoTx.memo) ? base.fromHex(utxoTx.memo) : Buffer.from(base.toUtf8(utxoTx.memo))
@@ -576,6 +578,7 @@ export function estimateBtcFee(utxoTx: utxoTx, network?: bitcoin.Network) {
     const outputs = utxoTx.outputs;
     const feePerB = utxoTx.feePerB || 10;
     const dustSize = utxoTx.dustSize || 546
+    
     network = network || bitcoin.networks.bitcoin;
 
     // calc tx size

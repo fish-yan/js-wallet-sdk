@@ -1,4 +1,4 @@
-import { BtcWallet, BtcXrcTypes, RuneData, RuneTestWallet, TBtcWallet } from "../src"
+import { BtcWallet, BtcXrcTypes, RuneData, RuneTestWallet, TBtcWallet, networks } from "../src"
 import { Message, buildRuneData } from "../src/runestone"
 import { SignTxParams } from "@okxweb3/coin-base";
 import { RuneId } from "../src/rune_id";
@@ -220,3 +220,68 @@ describe('rune test', () => {
         }
     })
 */
+test('rune test', async () => {
+    let btcTxParams = {
+        type: 102,
+        inputs: [
+            // rune token info
+            {
+                txId: "7f48cfaafc652ff11489d7416fcca8caf5f7b1295f2946d65a76931b3ec3fcd5",
+                vOut: 2,
+                amount: 1499960201,
+                address: "bcrt1prufattqkafmk4x6pnxw84ws5ls4qgmjvz305ytgq6u8rg9zeqwhq3t6j76", // 未花费地址
+                privateKey: "cTGrWN7WVyzAoBs9zsjQ3bFAz7LGBm9Ru2WsoHYjwy2RMH3A5XDp", // 未花费 WIF 编码私钥
+                // data: [{ "id": "26e414:0001", "amount": "500" }] // maybe many rune token
+            },
+            // gas fee utxo
+            // {
+            //     txId: "82c51ff69fd0a55968e346f7093cb9088ce8b60b60a2493c8a5bc57b977ce348",
+            //     vOut: 0,
+            //     amount: 200000,
+            //     address: "bc1pgvlezqu3crm44xjrrm7u3u63yqvw3rqvzu0vgcp2zsht5j9ss66q79p4zg", // 未花费地址
+            //     privateKey: "KyCySnrRzHkEBnDY9RfgHT1iXEP4684sMQxzBwapWmLmaoLzFvki", // 未花费 WIF 编码私钥
+            // }
+        ],
+        outputs: [
+            // rune send output
+            {
+                address: "bcrt1prufattqkafmk4x6pnxw84ws5ls4qgmjvz305ytgq6u8rg9zeqwhq3t6j76",
+                amount: 546,
+                // data: { "id": "26e414:0001", "amount": "100" } // one output allow only one rune token
+            }
+        ],
+        address: "bcrt1prufattqkafmk4x6pnxw84ws5ls4qgmjvz305ytgq6u8rg9zeqwhq3t6j76", // 找零地址
+        feePerB: 80,
+        runeData: { // 必须有
+            etching: {
+                divisibility: 7,
+                // premine: 1000,
+                // rune: "J",
+                // spacers: 10,
+                symbol: 'Y',
+                terms: {
+                    cap: 1000000000,
+                    amount: 1000,
+                    // height: [12, 13],
+                    // offset: [15, 16],
+                }
+            },
+            // mint: "26e414:0001",
+            // pointer: 0,
+            burn: false // 必须有
+        }
+    };
+    let signParams: SignTxParams = {
+        privateKey: "cTGrWN7WVyzAoBs9zsjQ3bFAz7LGBm9Ru2WsoHYjwy2RMH3A5XDp",
+        data: btcTxParams
+    };
+    let wallet = new TBtcWallet()
+    let result = await wallet.estimateFee(signParams)
+    console.log(result);
+
+    let tx = await wallet.signTransaction(signParams)
+    console.log("tx", tx);
+    
+})
+
+})

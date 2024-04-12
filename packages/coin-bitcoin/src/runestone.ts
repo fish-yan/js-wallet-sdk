@@ -143,14 +143,8 @@ export function buildRuneData(isMainnet: boolean, runeData: RuneData): Buffer {
     }
 
     // return payload
-    let prefix: Buffer | number
-    if (isMainnet) {
-        prefix = OPS.OP_13
-    } else {
-        prefix = Buffer.from('RUNE_TEST')
-    }
 
-    const opReturnScript = bitcoin.script.compile([OPS.OP_RETURN, prefix, Buffer.from(payload)])
+    const opReturnScript = bitcoin.script.compile([OPS.OP_RETURN, OPS.OP_13, Buffer.from(payload)])
 
     return opReturnScript
 }

@@ -164,6 +164,8 @@ export function toOutputScript(address: string, network?: Network): Buffer {
     } catch (e) {}
 
     if (decodeBech32) {
+      console.log(decodeBech32.prefix, network.bech32);
+      
       if (decodeBech32.prefix !== network.bech32)
         throw new Error(address + ' has an invalid prefix');
       if (decodeBech32.version === 0) {

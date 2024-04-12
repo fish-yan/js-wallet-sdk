@@ -24,12 +24,10 @@ export class RuneWallet extends BtcWallet {
         }
 
         for(let output of clonedParamData.outputs) {
-            let dataArray = output.data;
-            if (dataArray != null && dataArray instanceof Array) {
-                for (let data of dataArray) {
-                    if(typeof data["amount"] === "string") {
-                        data["amount"] = BigInt(data["amount"]);
-                    }
+            let data = output.data;
+            if (data != null) {
+                if(typeof data["amount"] === "string") {
+                    data["amount"] = BigInt(data["amount"]);
                 }
             }
         }
@@ -120,7 +118,11 @@ export class RuneWallet extends BtcWallet {
             updateOutputs.push(output)
             outputIndex++;
         }
-        const mint = RuneId.fromString(clonedParamData.runeData!.mint)
+        let mint: RuneId | undefined
+        if (clonedParamData.runeData.mint != null) {
+            mint = RuneId.fromString(clonedParamData.runeData.mint)
+        }
+
         return {
             inputs: clonedParamData.inputs,
             // @ts-ignore
@@ -129,10 +131,10 @@ export class RuneWallet extends BtcWallet {
             feePerB: clonedParamData.feePerB,
             runeData: {
                 edicts: typedEdicts,
-                etching: clonedParamData.runeData!.etching,
+                etching: clonedParamData.runeData.etching,
                 mint: mint,
-                pointer: clonedParamData.runeData!.pointer,
-                burn: clonedParamData.runeData!.burn
+                pointer: clonedParamData.runeData.pointer,
+                burn: clonedParamData.runeData.burn
             },
         }
     }
