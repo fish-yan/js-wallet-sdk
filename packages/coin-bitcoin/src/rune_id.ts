@@ -16,11 +16,6 @@ export class RuneId {
         return new RuneId(block, tx)
     }
 
-    public get() {
-        const str = `0x${this.block.toString(16)}${this.tx.toString(16)}`
-        return Number(str)
-    }
-
     public next(block: number, tx: number): RuneId {
         return new RuneId(this.block + block,
             block === 0 ? this.tx + tx : tx,
@@ -28,7 +23,7 @@ export class RuneId {
     }
 
     public toString(): string {
-        return `${this.block.toString(16)}:${this.tx.toString(16)}`;
+        return `${this.block}:${this.tx}`;
     }
 
     public static fromString(s: string): RuneId | undefined {
@@ -38,8 +33,8 @@ export class RuneId {
             return undefined;
         }        
         return new RuneId(
-            Number(hexToBigint(block)),
-            Number(hexToBigint(tx)),
+            Number(block),
+            Number(tx),
         );
     }
 }

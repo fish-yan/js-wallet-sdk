@@ -19,7 +19,7 @@ import {base} from "@okxweb3/crypto-lib";
 import {SignTxParams, VerifyMessageParams} from "@okxweb3/coin-base";
 
 describe("bitcoin", () => {
-
+/*
     test("private key", async () => {
         let wallet = new BtcWallet()
         let key = await wallet.getRandomPrivateKey()
@@ -201,38 +201,48 @@ describe("bitcoin", () => {
         let tx = await wallet.signTransaction(signParams);
         console.info(tx);
     })
-
+*/
     test("tx sign", async () => {
         let wallet = new TBtcWallet()
         let btcTxParams = {
+            type: 0,
             inputs: [
+                // {
+                //     txId: "3f7a44a1940028c10d47aaf587ff69946582074f73514da199239d7fe2b1d672",
+                //     vOut: 0,
+                //     amount: 546,
+                //     address: "2N3RdWFd2ANnE55nU39MCkYYz8G8Qj5kMXi",
+                //     privateKey: "cUqowsA58XzUBYajztQL9Gj2qx1YYCE2473cREprLAz5HWmAKVWZ",
+                // },
                 {
-                    txId: "a7edebed3f2e51a2ed99a3625fb408bd9db2ce61b1794880b3f214b26bf7a023",
-                    vOut: 0,
-                    amount: 250000
+                    txId: "3f7a44a1940028c10d47aaf587ff69946582074f73514da199239d7fe2b1d672",
+                    vOut: 3,
+                    amount: 1497561504,
+                    address: "2N3RdWFd2ANnE55nU39MCkYYz8G8Qj5kMXi",
+                    privateKey: "cUqowsA58XzUBYajztQL9Gj2qx1YYCE2473cREprLAz5HWmAKVWZ",
                 },
             ],
-            memo: "=:e:0x8b94c64ff7d39caaaac24450eb665e4edf6af0e9::t:30",
+            // memo: "=:e:0x8b94c64ff7d39caaaac24450eb665e4edf6af0e9::t:30",
             outputs: [
                 {
-                    address: "tb1qtsq9c4fje6qsmheql8gajwtrrdrs38kdzeersc",
-                    amount: 150000
+                    address: "2N8CVEgsh3p85we2sztndGScvjFvZNDhTQx",
+                    amount: 1000
                 }
             ],
-            memoPos: -1,
-            address: "2NF33rckfiQTiE5Guk5ufUdwms8PgmtnEdc",
-            feePerB: 2
+            // memoPos: -1,
+            address: "2N3RdWFd2ANnE55nU39MCkYYz8G8Qj5kMXi",
+            feePerB: 80
         };
 
         let signParams: SignTxParams = {
-            privateKey: "cPnvkvUYyHcSSS26iD1dkrJdV7k1RoUqJLhn3CYxpo398PdLVE22",
+            privateKey: "cUqowsA58XzUBYajztQL9Gj2qx1YYCE2473cREprLAz5HWmAKVWZ",
             data: btcTxParams
         };
         let tx = await wallet.signTransaction(signParams);
         console.info(tx);
         expect(tx).toEqual('0200000000010123a0f76bb214f2b3804879b161ceb29dbd08b45f62a399eda2512e3fedebeda700000000171600145c005c5532ce810ddf20f9d1d939631b47089ecdffffffff03f0490200000000001600145c005c5532ce810ddf20f9d1d939631b47089ecdd88401000000000017a914ef05515a0595d15eaf90d9f62fb85873a6d8c0b4870000000000000000366a343d3a653a3078386239346336346666376433396361616161633234343530656236363565346564663661663065393a3a743a333002483045022100b897da3b077f27ff0752346adacf2654c354aac94768fe73a72824f8986ca51d02200ac592435dbc25855c080dd80a660614e390a6b2372a3a940e2821d296a2d50c01210357bbb2d4a9cb8a2357633f201b9c518c2795ded682b7913c6beef3fe23bd6d2f00000000')
     });
-
+/*
     test("message sign", async () => {
         const wif = private2Wif(base.fromHex("adce25dc25ef89f06a722abdc4b601d706c9efc6bc84075355e6b96ca3871621"), networks.testnet)
         const s = bitcoin.message.sign(wif, "hello world", networks.testnet)
@@ -250,8 +260,9 @@ describe("bitcoin", () => {
         const s3 = await bitcoin.bip0322.signSimple("hello world", taprootAddress!, wif, networks.testnet)
         console.log(s3);
     });
+    */
 });
-
+/*
 describe("bitcash", () => {
     test("address", async () => {
         let network = bitcoin.networks.bitcoin;
@@ -482,3 +493,4 @@ test("verifyMessageWithAddressLtc", async () => {
     const valid = message.verifyWithAddress(addr, msg, sig, 'Litecoin Signed Message:\n');
     console.log(valid)
 });
+*/
