@@ -1,9 +1,9 @@
-import {cloneObject, SignTxParams} from "@okxweb3/coin-base";
-import {BtcWallet} from "./BtcWallet";
+import { cloneObject, SignTxParams } from "@okxweb3/coin-base";
+import { BtcWallet } from "./BtcWallet";
 import * as bitcoin from "../index"
-import {networks, signBtc, utxoTx} from "../index"
-import {buildRuneData} from "../runestone";
-import {base} from "@okxweb3/crypto-lib";
+import { networks, signBtc, utxoTx } from "../index"
+import { buildRuneData } from "../runestone";
+import { base } from "@okxweb3/crypto-lib";
 import { RuneId } from "../rune_id";
 
 export class RuneWallet extends BtcWallet {
@@ -12,21 +12,21 @@ export class RuneWallet extends BtcWallet {
         const clonedParamData = cloneObject(paramData)
 
         // Detects that the type of amount in data is converted to bigint
-        for(let input of clonedParamData.inputs) {
+        for (let input of clonedParamData.inputs) {
             let dataArray = input.data;
             if (dataArray != null && dataArray instanceof Array) {
                 for (let data of dataArray) {
-                    if(typeof data["amount"] === "string") {
+                    if (typeof data["amount"] === "string") {
                         data["amount"] = BigInt(data["amount"]);
                     }
                 }
             }
         }
 
-        for(let output of clonedParamData.outputs) {
+        for (let output of clonedParamData.outputs) {
             let data = output.data;
             if (data != null) {
-                if(typeof data["amount"] === "string") {
+                if (typeof data["amount"] === "string") {
                     data["amount"] = BigInt(data["amount"]);
                 }
             }
@@ -37,7 +37,7 @@ export class RuneWallet extends BtcWallet {
         const runeInputMap = new Map<string, bigint>();
         for (const input of inputs) {
             let dataArray = input.data;
-            
+
             if (dataArray != null && dataArray instanceof Array) {
                 for (const data of dataArray) {
                     let runeId: string = data["id"];
@@ -77,13 +77,12 @@ export class RuneWallet extends BtcWallet {
 
         // where isChange ? if input > output yes, rune change put first output
         let isRuneChange = false;
-        let firstOutputAddress = outputs.first.address
-        for (const id of runeInputMap.keys()) {
-
-            let inputAmount = runeInputMap.get(id);
-            let sendAmount = runeSendMap.get(id);
-            if ((inputAmount != null && sendAmount != null && inputAmount > sendAmount) || (inputAmount != null && sendAmount == null)) {
-                if (firstOutputAddress != clonedParamData.address) {
+        let firstAddress = outputs.length > 0 ? outputs[0].address : null
+        if (firstAddress !== clonedParamData.address) {
+            for (const id of runeInputMap.keys()) {
+                let inputAmount = runeInputMap.get(id);
+                let sendAmount = runeSendMap.get(id);
+                if ((inputAmount != null && sendAmount != null && inputAmount > sendAmount) || (inputAmount != null && sendAmount == null)) {
                     isRuneChange = true
                 }
             }
@@ -98,7 +97,7 @@ export class RuneWallet extends BtcWallet {
                 amount: 546
             }
             updateOutputs.push(runeChange)
-            outputIndex++;            
+            outputIndex++;
         }
         const typedEdicts: bitcoin.Edict[] = []
         for (const output of outputs) {
@@ -167,7 +166,7 @@ export class RuneWallet extends BtcWallet {
             isMainnet = true;
         }
         const opReturnScript = buildRuneData(isMainnet, runeData);
-        const opReturnOutput = {address: '', amount: 0, omniScript: base.toHex(opReturnScript)};
+        const opReturnOutput = { address: '', amount: 0, omniScript: base.toHex(opReturnScript) };
         return opReturnOutput;
     }
 
