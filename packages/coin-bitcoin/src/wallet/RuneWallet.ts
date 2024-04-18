@@ -77,14 +77,16 @@ export class RuneWallet extends BtcWallet {
 
         // where isChange ? if input > output yes, rune change put first output
         let isRuneChange = false;
+        let firstOutputAddress = outputs.first.address
         for (const id of runeInputMap.keys()) {
 
             let inputAmount = runeInputMap.get(id);
             let sendAmount = runeSendMap.get(id);
             if ((inputAmount != null && sendAmount != null && inputAmount > sendAmount) || (inputAmount != null && sendAmount == null)) {
-                isRuneChange = true
+                if (firstOutputAddress != clonedParamData.address) {
+                    isRuneChange = true
+                }
             }
-            isRuneChange = true //Phase I fix: always prepend rune change address to prevent unintended transfer
         }
 
         let outputIndex = 0;

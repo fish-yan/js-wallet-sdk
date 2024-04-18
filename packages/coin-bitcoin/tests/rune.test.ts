@@ -6,7 +6,7 @@ import { stringToBytes } from "@okxweb3/crypto-lib/dist/base";
 import { Rune } from "../src/rune";
 import * as varint from '../src/varint';
 import { Buffer } from "buffer";
-import { hexToBuf } from "@okxweb3/crypto-lib";
+import { bufToHex, hexToBuf } from "@okxweb3/crypto-lib";
 import { hexToBytes } from "@okxweb3/crypto-lib/dist/signutil/schnorr";
 // import { encode } from "varint";
 
@@ -210,25 +210,25 @@ describe('rune test', () => {
 */
 test('rune test', async () => {
     let btcTxParams = {
-        type: 0,
+        type: BtcXrcTypes.RUNE,
         inputs: [
             // rune token info
             {
-                txId: "3f7a44a1940028c10d47aaf587ff69946582074f73514da199239d7fe2b1d672",
-                vOut: 0,
-                amount: 546,
-                address: "2N3RdWFd2ANnE55nU39MCkYYz8G8Qj5kMXi", // 未花费地址
-                privateKey: "cUqowsA58XzUBYajztQL9Gj2qx1YYCE2473cREprLAz5HWmAKVWZ", // 未花费 WIF 编码私钥
+                txId: "4bf1d2a2d498eaba83eb401f4a62d702cc02d98264de0656cd4bd8fc5ab4a913",
+                vOut: 2,
+                amount: 499766700,
+                address: "2N8CVEgsh3p85we2sztndGScvjFvZNDhTQx", // 未花费地址
+                privateKey: "cMmcX1FwYYGJrpifuQehXttCHcXE5egWAu8zXiyG1rJWJ1UtM4Eh", // 未花费 WIF 编码私钥
                 // data: [{ "id": "540:1", "amount": "99700" }] // maybe many rune token
             },
-            {
-                txId: "b58f91cd3ac7549cfc37a11ba9a4173c7fb89f30ef5e221c0b59b1678d24275d",
-                vOut: 2,
-                amount: 1497437990,
-                address: "2N3RdWFd2ANnE55nU39MCkYYz8G8Qj5kMXi", // 未花费地址
-                privateKey: "cT52VFq3255tyCBHjqr7cvHrkGuUHYf4TSR1r9migV1jJFNQTr8u", // 未花费 WIF 编码私钥
-                // data: [{ "id": "26e414:0001", "amount": "500" }] // maybe many rune token
-            },
+            // {
+            //     txId: "b58f91cd3ac7549cfc37a11ba9a4173c7fb89f30ef5e221c0b59b1678d24275d",
+            //     vOut: 2,
+            //     amount: 1497437990,
+            //     address: "2N3RdWFd2ANnE55nU39MCkYYz8G8Qj5kMXi", // 未花费地址
+            //     privateKey: "cT52VFq3255tyCBHjqr7cvHrkGuUHYf4TSR1r9migV1jJFNQTr8u", // 未花费 WIF 编码私钥
+            //     // data: [{ "id": "26e414:0001", "amount": "500" }] // maybe many rune token
+            // },
             // gas fee utxo
             // {
             //     txId: "82c51ff69fd0a55968e346f7093cb9088ce8b60b60a2493c8a5bc57b977ce348",
@@ -242,33 +242,33 @@ test('rune test', async () => {
             // rune send output
             {
                 address: "2N8CVEgsh3p85we2sztndGScvjFvZNDhTQx",
-                amount: 1000,
+                amount: 546,
                 // data: { "id": "540:1", "amount": "200" } // one output allow only one rune token
             }
         ],
-        address: "2N3RdWFd2ANnE55nU39MCkYYz8G8Qj5kMXi", // 找零地址
-        feePerB: 120,
-        // runeData: { // 必须有
-            // etching: {
-            //     divisibility: 2,
-            //     premine: 100000,
-            //     // rune: "ONTORUNER",
-            //     // spacers: 4,
-            //     symbol: 'O',
-            //     terms: {
-            //         cap: 1000000000,
-            //         amount: 100000,
-            //         // height: [12, 13],
-            //         // offset: [15, 16],
-            //     }
-            // },
-            // mint: "540:1",
+        address: "2N8CVEgsh3p85we2sztndGScvjFvZNDhTQx", // 找零地址
+        feePerB: 80,
+        runeData: { // 必须有
+            etching: {
+                // divisibility: 1,
+                // premine: 100000,
+                rune: "ONTOONTOONTOONTO",
+                // spacers: 4,
+                // symbol: 'O',
+                // terms: {
+                //     cap: 1000000000,
+                //     amount: 100000,
+                    // height: [12, 13],
+                    // offset: [15, 16],
+                // }
+            },
+            // mint: "0:0",
             // pointer: 0,
-            // burn: false // 必须有
-        // }
+            burn: false // 必须有
+        }
     };
     let signParams: SignTxParams = {
-        privateKey: "cUqowsA58XzUBYajztQL9Gj2qx1YYCE2473cREprLAz5HWmAKVWZ",
+        privateKey: "cMmcX1FwYYGJrpifuQehXttCHcXE5egWAu8zXiyG1rJWJ1UtM4Eh",
         data: btcTxParams
     };
     let wallet = new TBtcWallet()
@@ -277,6 +277,17 @@ test('rune test', async () => {
 
     let tx = await wallet.signTransaction(signParams)
     console.log("tx", tx);
+    
+})
+
+test("rune commitment", () => {
+    let rune = Rune.fromString("ONTOONTOONTOONTO")
+    console.log(rune.value);
+    
+    console.log(rune.commitment());
+    let hex = bufToHex(rune.commitment())
+    let buf = hexToBuf(hex)
+    console.log(buf);
     
 })
 

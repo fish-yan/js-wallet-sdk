@@ -1,3 +1,5 @@
+import { bigintToLEBytes } from "./varint";
+
 export const DIFFCHANGE_INTERVAL = BigInt(2016);
 export const CLAIM_BIT = BigInt(1) << BigInt(48);
 export const MAX_DIVISIBILITY = 38;
@@ -59,6 +61,17 @@ export class Rune {
     }
 
     return new Rune(rune);
+  }
+
+  public commitment(): Buffer {
+    const bytes = bigintToLEBytes(this.value);
+    let end = bytes.length;
+
+    while (end > 0 && bytes[end - 1] === 0) {
+      end -= 1;
+    }
+
+    return Buffer.from(bytes.slice(0, end));
   }
 
   public toString(): string {
