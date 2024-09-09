@@ -39,9 +39,10 @@ export type JettonTxData = {
     expireAt?: number
     queryId?: string
     publicKey?: string
+    version?: string
 };
 
-export function transfer(txData: TxData, seed: string, walletVersion?: string) {
+export function transfer(txData: TxData, seed: string) {
     var secretK: Uint8Array;
     var publicK: Uint8Array;
     if (seed) {
@@ -57,11 +58,12 @@ export function transfer(txData: TxData, seed: string, walletVersion?: string) {
         to: txData.to,
         value: BigInt(txData.amount),
         // bounce: txData.toIsInit,
-        bounce: false, // depend on the design of PM
+        bounce: parseAddress(txData.to).isBounceable, // depend on the design of PM
         body: txData.memo
     })];
 
     let signedMessage: Cell
+    let walletVersion = txData.version
     if (!walletVersion || walletVersion.toLowerCase() == "v5r1") {
         let wallet = WalletContractV5R1.create({workchain: 0, publicKey: Buffer.from(publicK)});
         signedMessage = wallet.createTransfer({
@@ -114,7 +116,7 @@ export function venomTransfer(txData: TxData, seed: string) {
     };
 }
 
-export function jettonTransfer(txData: JettonTxData, seed: string, walletVersion?: string) {
+export function jettonTransfer(txData: JettonTxData, seed: string) {
     var secretK: Uint8Array;
     var publicK: Uint8Array;
     if (seed) {
@@ -128,6 +130,7 @@ export function jettonTransfer(txData: JettonTxData, seed: string, walletVersion
     }
     // const {secretKey, publicKey} = signUtil.ed25519.fromSeed(base.fromHex(seed));
     // const wallet = WalletContractV3R2.create({workchain: 0, publicKey: Buffer.from(publicKey)});
+    let walletVersion = txData.version
     let wallet: Contract
     if (!walletVersion || walletVersion.toLowerCase() == "v5r1") {
         wallet = WalletContractV5R1.create({workchain: 0, publicKey: Buffer.from(publicK)});
@@ -179,7 +182,7 @@ export function jettonTransfer(txData: JettonTxData, seed: string, walletVersion
         value: BigInt(txData.messageAttachedTons || "50000000"), // message fee, amount of TON
         body: transferPayload,
         // bounce: txData.toIsInit,
-        bounce: false, // depend on the design of PM
+        bounce: parseAddress(txData.to).isBounceable // depend on the design of PM
     })];
 
     let signedMessage: Cell
@@ -214,7 +217,6 @@ export async function signMultiTransaction(
     messages: TonTransferParams[],
     seqno: number,
     expireAt?: number,
-    workchain?: number,
     publicKey?: string,
     walletVersion?: string
 ) {
@@ -263,7 +265,7 @@ export async function signMultiTransaction(
     let wallet: Contract
     let transaction: Cell
     if (!walletVersion || walletVersion.toLowerCase() == "v5r1") {
-        wallet = WalletContractV5R1.create({workchain: workchain == 1 ? 1 : 0, publicKey: Buffer.from(publicK)});
+        wallet = WalletContractV5R1.create({workchain: 0, publicKey: Buffer.from(publicK)});
         transaction = (wallet! as WalletContractV5R1).createTransfer({
             seqno,
             secretKey: privateKey ? Buffer.from(secretK!) : Buffer.alloc(0),
@@ -272,7 +274,7 @@ export async function signMultiTransaction(
             timeout: expireAt,
         });
     } else if (walletVersion.toLowerCase() == "v4r2") {
-        wallet = WalletContractV4.create({workchain: workchain == 1 ? 1 : 0, publicKey: Buffer.from(publicK)});
+        wallet = WalletContractV4.create({workchain: 0, publicKey: Buffer.from(publicK)});
         transaction = (wallet! as WalletContractV4).createTransfer({
             seqno,
             secretKey: privateKey ? Buffer.from(secretK!) : Buffer.alloc(0),

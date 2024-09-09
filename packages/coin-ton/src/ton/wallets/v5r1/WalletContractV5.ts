@@ -54,6 +54,23 @@ export type WalletV5R1SendArgs =
 
 export type WalletV5R1PackedCell<T> =  T extends WalletV5R1SendArgsSignable ? Promise<Cell> : Cell;
 
+export const TestWalletId: WalletIdV5R1 = {
+    networkGlobalId: -3,
+    context: {
+        walletVersion: 'v5r1',
+        workchain: 0,
+        subwalletNumber: 0
+    }
+}
+
+export const MainnetWalletId: WalletIdV5R1 = {
+    networkGlobalId: -239,
+    context: {
+        walletVersion: 'v5r1',
+        workchain: 0,
+        subwalletNumber: 0
+    }
+}
 
 class WalletContractV5 implements Contract {
 
@@ -78,14 +95,7 @@ class WalletContractV5 implements Contract {
         if (walletId !== null && walletId !== undefined) {
             this.walletId = walletId;
         } else {
-            this.walletId = {
-                networkGlobalId: -239,
-                context: {
-                    walletVersion: "v5r1",
-                    workchain: 0,
-                    subwalletNumber: 0
-                }
-            } 
+            this.walletId = MainnetWalletId
         }
 
         // Build initial code and data
@@ -220,9 +230,7 @@ class WalletContractV5 implements Contract {
             actions: this.createActions({ messages: args.messages, sendMode: sendMode }),
             ...args
         })
-        if (isForSimulate) {
-            return body; // fake seed for simulate
-        }
+
         // external message for send
         const externalMessage = external({
             to: this.address,

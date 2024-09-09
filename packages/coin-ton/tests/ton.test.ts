@@ -220,13 +220,13 @@ describe("ton", () => {
             privateKey: "4789815d45fcf0a79083b0adaec3b5f0d02e948056c1cfde174327c3ee93ed35",
             data: {
                 type: "transfer", // type of TON transfer
-                to: "EQA3_JIJKDC0qauDUEQe2KjQj1iLwQRtrEREzmfDxbCKw9Kr", // destination address
+                to: "0QBzjpa6ba92IM0WyLvSf0igIhZZK5KANnILOwY55FFqVKjm", // destination address
                 decimal: 9, // decimal on ton blockchain
                 amount: "10000000",
-                seqno: 14, // nonce or sequence of from address
+                seqno: 23, // nonce or sequence of from address
                 toIsInit: true, // destination address init or not
                 memo: "ton test", // comment for this tx
-                expireAt: 1718863283n/*timeoutAtSeconds*/, // timeout at seconds eg, 1718863283n, default now + 60s
+                // expireAt: 1718863283n/*timeoutAtSeconds*/, // timeout at seconds eg, 1718863283n, default now + 60s
                 /**
                  * export enum SendMode {
                  *     CARRY_ALL_REMAINING_BALANCE = 128,
@@ -239,6 +239,7 @@ describe("ton", () => {
                  */
                 sendMode: 1,
                 publicKey: "54f82165d36ab01a252e2a4ea69352ae5ff4ff263e568a46beb794cabf0cb9f4", // public key needed if no private key
+                version: "v5r1"
             },
         };
         const body = await tonWallet.getTransactionBodyForSimulate(param);

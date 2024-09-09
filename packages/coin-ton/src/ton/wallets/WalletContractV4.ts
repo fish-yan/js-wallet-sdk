@@ -126,9 +126,7 @@ export class WalletContractV4 implements Contract {
             timeout: args.timeout,
             walletId: this.walletId
         });
-        if (isForSimulate) {
-            return body; // fake seed for simulate
-        }
+
         // external message for send
         const externalMessage = external({
             to: this.address,

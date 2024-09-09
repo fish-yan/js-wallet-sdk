@@ -88,9 +88,9 @@ export interface TransactionPayload {
     valid_until?: number;
     messages: TransactionPayloadMessage[];
     seqno: number,
-    network?: string;
     from?: string;
     publicKey?: string;
+    version?: string;
 }
 
 export interface ApiNft {
@@ -116,7 +116,7 @@ export type SignMultiTransactionForNFTParams = {
     nfts?: ApiNft[];
     seqno: number,
     expireAt?: number,
-    workchain?: number
+    version?: string
 }
 
 export type BuildNotcoinVoucherExchangeParams = {
@@ -230,9 +230,9 @@ export class TonWallet extends BaseWallet {
         const data = param.data as TxData;
         try {
             if (data.type == "transfer") {
-                return transfer(param.data as TxData, param.privateKey, data.version);
+                return transfer(param.data as TxData, param.privateKey);
             } else if (data.type == "jettonTransfer") {
-                return jettonTransfer(param.data as JettonTxData, param.privateKey, data.version);
+                return jettonTransfer(param.data as JettonTxData, param.privateKey);
             }
         } catch (e) {
             return Promise.reject(SignTxError);
@@ -240,9 +240,9 @@ export class TonWallet extends BaseWallet {
     }
 
     async signJettonTransaction(param: SignTxParams): Promise<any> {
-        const data = param.data as TxData;
+        const data = param.data as JettonTxData;
         try {
-            return jettonTransfer(param.data as JettonTxData, param.privateKey, data.version);
+            return jettonTransfer(param.data as JettonTxData, param.privateKey);
         } catch (e) {
             return Promise.reject(SignTxError);
         }
@@ -391,8 +391,7 @@ export class TonWallet extends BaseWallet {
                 isBase64Payload: m.isBase64Payload,
             });
         });
-        const network = txPayload.network === "1" || txPayload.network === "testnet" ? 1 : 0
-        return await signMultiTransaction(param.privateKey, tonTransferParams, txPayload.seqno, validUntil, network, txPayload.publicKey);
+        return await signMultiTransaction(param.privateKey, tonTransferParams, txPayload.seqno, validUntil, txPayload.publicKey, txPayload.version);
     }
 
     async simulateMultiTransaction(param: SignTxParams) {
@@ -433,7 +432,7 @@ export class TonWallet extends BaseWallet {
                 toAddress: nftAddress,
             };
         });
-        return await signMultiTransaction(param.privateKey, messages, data.seqno, data.expireAt, data.workchain);
+        return await signMultiTransaction(param.privateKey, messages, data.seqno, data.expireAt, data.version);
     }
 
     // todo do test
@@ -515,12 +514,9 @@ export class TestTonWallet extends TonWallet {
         }
         let wallet: Contract;
         if (!walletVersion || walletVersion.toLowerCase() == "v5r1") {
-            wallet = WalletContractV5R1.create({workchain: chain, publicKey: pub});
-            console.log("v5r1address", wallet.address.toString({bounceable: false, testOnly: true}));
-            
+            wallet = WalletContractV5R1.create({workchain: chain, publicKey: pub});            
         } else if (walletVersion.toLowerCase() == "v4r2") {
             wallet = WalletContractV4.create({workchain: chain, publicKey: pub});
-            console.log("v4r2address", wallet.address.toString({bounceable: false, testOnly: true}));
         } else {
             // todo 
         }
